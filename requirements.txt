@@ -1,0 +1,8 @@
+torch==2.2.1
+torchvision==0.17.1
+matplotlib
+laspy
+opencv-python
+opencv-contrib-python
+open3d
+git+https://github.com/facebookresearch/segment-anything.git
