@@ -1,2 +1,4 @@
 SAM_FOR_3D
 *.pth
+__pycache__/
+**/__pycache__/
