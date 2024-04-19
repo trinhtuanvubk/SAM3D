@@ -131,10 +131,11 @@ def pipeline(data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
     #Function Execution
     spherical_image, mapping = generate_spherical_image(center_coordinates, point_cloud, colors, resolution)
 
-
+    print("DONE spherical image")
     modified_point_cloud = color_point_cloud_v2(spherical_image , point_cloud, mapping)
     las = export_point_cloud("pcd_results.las", modified_point_cloud)
 
+    print("DONE export pc")
     # #Loading the las file from the disk
     # las = laspy.read(os.path.join(data_path,"ITC_BUILDING.las"))
 
