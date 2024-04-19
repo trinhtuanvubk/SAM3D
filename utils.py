@@ -83,6 +83,21 @@ def color_point_cloud(image_path, point_cloud, mapping):
                 modified_point_cloud[point_index, 3:] = color
     return modified_point_cloud
 
+def color_point_cloud_v2(spherical_image, point_cloud, mapping):
+    #Resize image and flip x/y to match mapping
+    shape = (mapping.shape[1], mapping.shape[0])
+    image = cv2.resize(spherical_image, shape)
+    h, w = image.shape[:2]
+    modified_point_cloud = np.zeros((point_cloud.shape[0], point_cloud.shape[1]+3), dtype=np.float32)
+    modified_point_cloud[:, :3] = point_cloud
+    for iy in range(h):
+        for ix in range(w):
+            point_index = mapping[iy, ix]
+            if point_index != -1:
+                color = image[iy, ix]
+                modified_point_cloud[point_index, 3:] = color
+    return modified_point_cloud
+
 def export_point_cloud(cloud_path, modified_point_cloud):
     # 1. Create a new header
     header = laspy.LasHeader(point_format=3, version="1.2")
@@ -99,5 +114,5 @@ def export_point_cloud(cloud_path, modified_point_cloud):
     las_o.write(cloud_path)
 
     print("Export succesful at: ", cloud_path)
-    return
+    return las_o
 

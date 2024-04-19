@@ -6,7 +6,7 @@ import cv2
 import laspy
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
 import time
-import open3d
+import open3d as o3d
 
 import os
 import torch
@@ -132,12 +132,11 @@ def pipeline(data_path="SAM_FOR_3D/ITC_BUILDING.las",
     spherical_image, mapping = generate_spherical_image(center_coordinates, point_cloud, colors, resolution)
 
 
-    modified_point_cloud = color_point_cloud("ITC_BUILDING_spherical_projection_segmented.jpg", point_cloud, mapping)
-    export_point_cloud("pcd_results.las", modified_point_cloud)
+    modified_point_cloud = color_point_cloud_v2(spherical_image , point_cloud, mapping)
+    las = export_point_cloud("pcd_results.las", modified_point_cloud)
 
-    import open3d as o3d
-    #Loading the las file from the disk
-    las = laspy.read(os.path.join(data_path,"ITC_BUILDING.las"))
+    # #Loading the las file from the disk
+    # las = laspy.read(os.path.join(data_path,"ITC_BUILDING.las"))
 
     #Transforming to a numpy array
     coords = np.vstack((las.x, las.y, las.z))
@@ -156,7 +155,7 @@ def pipeline(data_path="SAM_FOR_3D/ITC_BUILDING.las",
     pcd.points = o3d.utility.Vector3dVector(point_cloud)
 
     # Save to PLY
-    o3d.io.write_point_cloud("hihi.ply", pcd)
+    o3d.io.write_point_cloud(output_path, pcd)
 
 
 
