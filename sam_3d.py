@@ -105,7 +105,7 @@ def gen_spherical_masks(data_path="images/ITC_BUILDING_spherical_projection.jpg"
     plt.savefig(output_path)
 
 
-def pipeline(data_path="SAM_FOR_3D/ITC_BUILDING.las",
+def pipeline(data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
                         output_path="images/hihi.ply",
                         resolution=500,
                         center_coordinates=[189,60,2]):
