@@ -100,20 +100,23 @@ def gen_spherical_masks(data_path="images/ITC_BUILDING_spherical_projection.jpg"
     fig.add_axes([0,0,1,1])
 
     plt.imshow(image_rgb)
-    # color_mask = sam_masks(result)
+    color_mask = sam_masks(result)
     plt.axis('off')
     plt.savefig(output_path)
 
 
-def pipeline(data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
-                        output_path="images/hihi.ply",
-                        resolution=500,
-                        center_coordinates=[189,60,2]):
+def pipeline(
+            data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
+            output_path="images/hihi.ply",
+            resolution=500,
+            center_coordinates=[189,60,2]):
     
     """
     __DOCS__
     center_coordinates: Defining the position in the point cloud to generate a panorama
     """
+    #Init mask generator
+    mask_generator = create_mask_generator(device="cuda:0")
 
     #Loading the las file from the disk
     las = laspy.read(data_path)
@@ -131,8 +134,36 @@ def pipeline(data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
     #Function Execution
     spherical_image, mapping = generate_spherical_image(center_coordinates, point_cloud, colors, resolution)
 
+    #Plotting with matplotlib
+    fig = plt.figure(figsize=(np.shape(spherical_image)[1]/72, np.shape(spherical_image)[0]/72))
+    fig.add_axes([0,0,1,1])
+    plt.imshow(spherical_image)
+    plt.axis('off')
+
+    #Saving to the disk
+    plt.savefig("images/ITC_BUILDING_spherical_projection.jpg")
+    print("DONE spherical projection")
+
+    temp_img = cv2.imread("images/ITC_BUILDING_spherical_projection.jpg")
+    image_rgb = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
+
+    t0 = time.time()
+    result = mask_generator.generate(image_rgb)
+    t1 = time.time()
+    fig = plt.figure(figsize=(np.shape(image_rgb)[1]/72, np.shape(image_rgb)[0]/72))
+    fig.add_axes([0,0,1,1])
+
+    plt.imshow(image_rgb)
+    color_mask = sam_masks(result)
+    plt.axis('off')
+    plt.savefig("images/ITC_BUILDING_spherical_projection_segmented.jpg")
+
+    t0 = time.time()
+    result = mask_generator.generate(image_rgb)
+    t1 = time.time()
+
     print("DONE spherical image")
-    modified_point_cloud = color_point_cloud_v2(spherical_image , point_cloud, mapping)
+    modified_point_cloud = color_point_cloud("images/ITC_BUILDING_spherical_projection_segmented.jpg", point_cloud, mapping)
     las = export_point_cloud("pcd_results.las", modified_point_cloud)
 
     print("DONE export pc")
@@ -161,4 +192,6 @@ def pipeline(data_path="SAM_FOR_3D/DATA/ITC_BUILDING.las",
 
 
 if __name__=="__main__":
-    gen_spherical_image()
+    # gen_spherical_image()
+    # gen_spherical_masks()
+    pipeline()
